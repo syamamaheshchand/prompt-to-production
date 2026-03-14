@@ -5,14 +5,15 @@ See README.md for run command and expected behaviour.
 """
 import os
 import sys
+from typing import Dict
 
 # Hardcoded rules and parsing exactly to avoid LLM hallucination in this simulation context
-def retrieve_documents(base_path: str) -> dict:
+def retrieve_documents(base_path: str) -> Dict[str, Dict[str, str]]:
     """
     Opens and reads all 3 required policy files and processes them into 
     an indexed lookup to be referenced by the Q&A system.
     """
-    docs = {
+    docs: Dict[str, Dict[str, str]] = {
         'policy_hr_leave.txt': {},
         'policy_it_acceptable_use.txt': {},
         'policy_finance_reimbursement.txt': {}
@@ -37,7 +38,7 @@ def retrieve_documents(base_path: str) -> dict:
             parts = line.split(' ', 1)
             if len(parts) > 1 and parts[0].count('.') == 1 and parts[0].replace('.', '').isdigit():
                 if current_clause:
-                    docs[doc_name].update({current_clause: ' '.join(current_text)})
+                    docs[doc_name][current_clause] = ' '.join(current_text)  # type: ignore
                 
                 current_clause = parts[0]
                 current_text = [parts[1]]
@@ -45,11 +46,11 @@ def retrieve_documents(base_path: str) -> dict:
                 current_text.append(line)
                 
         if current_clause:
-            docs[doc_name].update({current_clause: ' '.join(current_text)})
+            docs[doc_name][current_clause] = ' '.join(current_text)  # type: ignore
             
     return docs
 
-def answer_question(question: str, docs: dict) -> str:
+def answer_question(question: str, docs: Dict[str, Dict[str, str]]) -> str:
     """
     Simulates a compliant AI answering exactly according to the UC-X specifications.
     It strictly refuses to combine documents or answer out-of-scope questions.
