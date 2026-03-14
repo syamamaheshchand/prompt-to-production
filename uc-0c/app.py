@@ -22,7 +22,8 @@ def load_dataset(input_path: str) -> list:
         reader = csv.DictReader(f)
         for row in reader:
             dataset.append(row)
-            if not row.get('actual_spend') or row.get('actual_spend').strip() == '':
+            spend_val = row.get('actual_spend')
+            if spend_val is None or spend_val.strip() == '':
                 null_rows.append({
                     'period': row.get('period'),
                     'ward': row.get('ward'),
